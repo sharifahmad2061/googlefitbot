@@ -20,6 +20,7 @@
 		<div class="g-signin2" data-onsuccess="onSignIn"></div>
 		<script>
 			document.addEventListener('DOMContentLoaded', function() {
+				console.log('hello')
 				function onSignIn(googleUser) {
 					const firestore = firebase.firestore()
 					const usersDb = firestore.collection('users')
@@ -51,14 +52,26 @@
 									})
 									.then(function() {
 										console.log('now granted')
-										let res = $.getJSON(
-											'https://www.googleapis.com/fitness/v1/users/me/sessions',
-											function(res) {
+										// $.getJSON(
+										// 	'https://www.googleapis.com/fitness/v1/users/me/sessions',
+										// 	function(res) {
+										// 		console.log(JSON.parse(res))
+										// 	}
+										// )
+										$.ajax({
+											url:
+												'https://www.googleapis.com/fitness/v1/users/userId/dataSources',
+											success: function(res) {
 												console.log(JSON.parse(res))
 											}
-										)
+										}).fail(function(err) {
+											console.log(err)
+										})
 									})
 							}
+						})
+						.catch(function(error) {
+							console.log(error)
 						})
 				}
 			})
