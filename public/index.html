@@ -19,19 +19,59 @@
 	<body>
 		<div class="g-signin2" data-onsuccess="onSignIn"></div>
 		<script>
-			function onSignIn(googleUser) {
-				let idToken = googleUser.getAuthResponse().id_token
-				var profile = googleUser.getBasicProfile()
-				console.log('ID: ' + profile.getId()) // Do not send to your backend! Use an ID token instead.
-				console.log('Name: ' + profile.getName())
-				console.log('Image URL: ' + profile.getImageUrl())
-				console.log('Email: ' + profile.getEmail()) // This is null if the 'email' scope is not present.
-			}
+			document.addEventListener('DOMContentLoaded', function() {
+				function onSignIn(googleUser) {
+					const firestore = firebase.firestore()
+					const usersDb = firestore.collection('users')
+					const idToken = googleUser.getAuthResponse().id_token
+					const profile = googleUser.getBasicProfile()
+					const userid = profile.getId()
+					const name = profile.getName()
+					const email = profile.getEmail()
+					usersDb
+						.doc(userid)
+						.set({
+							name: name,
+							email: email,
+							idtoken: idToken
+						})
+						.then(function() {
+							console.log('user successfully written to db')
+							if (
+								googleUser.hasGrantedScopes(
+									'https://www.googleapis.com/auth/fitness.activity.read'
+								)
+							) {
+								console.log('has granted')
+							} else {
+								googleUser
+									.grant({
+										scope:
+											'https://www.googleapis.com/auth/fitness.activity.read'
+									})
+									.then(function() {
+										console.log('now granted')
+										let res = $.getJSON(
+											'https://www.googleapis.com/fitness/v1/users/me/sessions',
+											function(res) {
+												console.log(JSON.parse(res))
+											}
+										)
+									})
+							}
+						})
+				}
+			})
 		</script>
 		<script
 			src="https://apis.google.com/js/platform.js"
 			async
 			defer
+		></script>
+		<script
+			src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+			integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8="
+			crossorigin="anonymous"
 		></script>
 	</body>
 </html>
