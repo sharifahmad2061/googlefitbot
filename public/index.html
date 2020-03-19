@@ -9,19 +9,18 @@
 		/>
 		<title>Welcome to Firebase Hosting</title>
 
-		<!-- update the version number as needed -->
-		<script defer src="/__/firebase/7.11.0/firebase-app.js"></script>
-		<!-- include only the Firebase features as you need -->
-		<script defer src="/__/firebase/7.11.0/firebase-firestore.js"></script>
-		<!-- initialize the SDK after all desired features are loaded -->
-		<script defer src="/__/firebase/init.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<script src="https://apis.google.com/js/platform.js"></script>
+		<script src="https://apis.google.com/js/api.js"></script>
 	</head>
 	<body>
 		<div class="g-signin2" data-onsuccess="onSignIn"></div>
+		<div><button class="signout">Sign Out</button></div>
 		<script>
 			document.addEventListener('DOMContentLoaded', function() {
 				console.log('hello')
 				function onSignIn(googleUser) {
+					console.log('I am called')
 					const firestore = firebase.firestore()
 					const usersDb = firestore.collection('users')
 					const idToken = googleUser.getAuthResponse().id_token
@@ -29,6 +28,7 @@
 					const userid = profile.getId()
 					const name = profile.getName()
 					const email = profile.getEmail()
+					console.log(usersDb)
 					usersDb
 						.doc(userid)
 						.set({
@@ -74,17 +74,28 @@
 							console.log(error)
 						})
 				}
+				const signoutbtn = $('.signout')
+				signoutbtn.click(event => {
+					signout()
+				})
+				function signout() {
+					const auth2 = gapi.auth2.getAuthInstance()
+					auth2
+						.signOut()
+						.then(() => {
+							console.log('user signed out')
+						})
+						.catch(err => {
+							console.log(err)
+						})
+				}
 			})
 		</script>
-		<script
-			src="https://apis.google.com/js/platform.js"
-			async
-			defer
-		></script>
-		<script
-			src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-			integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8="
-			crossorigin="anonymous"
-		></script>
+		<!-- update the version number as needed -->
+		<script defer src="/__/firebase/7.11.0/firebase-app.js"></script>
+		<!-- include only the Firebase features as you need -->
+		<script defer src="/__/firebase/7.11.0/firebase-firestore.js"></script>
+		<!-- initialize the SDK after all desired features are loaded -->
+		<script defer src="/__/firebase/init.js"></script>
 	</body>
 </html>
