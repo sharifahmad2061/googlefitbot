@@ -1,0 +1,2 @@
+https://developers.google.com/fit/rest/v1/reference/
+https://github.com/google/google-api-javascript-client
