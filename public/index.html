@@ -23,40 +23,76 @@
     <div><button class="signout">Sign Out</button></div>
 
     <script>
+      var auth2;
       var isAuthorized;
       var currentApiRequest;
+      var GoogleAuth;
 
-      const API_KEY = "AIzaSyDmYWhjRQzvd_tNmw0GGHvR2pguV4PUc90";
+      // const API_KEY = "AIzaSyDmYWhjRQzvd_tNmw0GGHvR2pguV4PUc90";
+      // const CLIENT_ID =
+      //   "302313684265-0knsk18lfbeklpp2sqab95a0ta491qva.apps.googleusercontent.com";
+
       const CLIENT_ID =
-        "302313684265-0knsk18lfbeklpp2sqab95a0ta491qva.apps.googleusercontent.com";
+        "894799288356-tuhjeecfml1h0ticd63bsig54obdesmf.apps.googleusercontent.com";
 
       // multiple scopes can be included, separated by spaces.
       const SCOPES = "https://www.googleapis.com/auth/fitness.activity.read";
 
       function handleClientLoad() {
+        console.log("a");
         gapi.load("client:auth2", initClient);
       }
 
       function handleAuthClick() {
-        gapi.auth2.getAuthInstance().signIn();
-      }
-
-      function initClient() {
+        console.log("signin clicked");
         gapi.auth2
-          .init({
-            api_key: API_KEY,
-            client_id: CLIENT_ID,
-            scope: SCOPES
-          })
-          .then(() => {
-            gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+          .getAuthInstance()
+          .signIn()
+          .then(GoogleUser => {
+            console.log("handleAuthClick -> GoogleUser", GoogleUser);
 
-            $("#signin").click(handleAuthClick);
+            setTimeout(() => {
+              GoogleUser.reloadAuthResponse();
+            }, 5000);
+            // console.log(
+            //   "signedin! ",
+            //   JSON.stringify(GoogleAuth.currentUser.get())
+            // );
           });
       }
 
+      // gapi.load("auth2", function() {
+      //   auth2 = gapi.auth2.init({
+      //     client_id: CLIENT_ID,
+      //     scope: SCOPES
+      //   });
+
+      //   // Sign the user in, and then retrieve their ID.
+      //   auth2.signIn().then(function() {
+      //     console.log(auth2.currentUser.get().getId());
+      //   });
+      // });
+
+      function initClient() {
+        const _GoogleAuth = gapi.auth2.init({
+          // api_key: API_KEY,
+          client_id: CLIENT_ID,
+          scope: SCOPES
+        });
+
+        _GoogleAuth.then(() => {
+          GoogleAuth = gapi.auth2.getAuthInstance();
+
+          GoogleAuth.isSignedIn.listen(updateSigninStatus);
+
+          $("#signin").click(handleAuthClick);
+        });
+      }
+
       function updateSigninStatus(isSignedIn) {
+        console.log("updateSigninStatus -> isSignedIn", isSignedIn);
         if (isSignedIn) {
+          console.log("updateSigninStatus -> isSignedIn", isSignedIn);
           isAuthorized = true;
           if (currentApiRequest) {
             sendAuthorizedApiRequest(currentApiRequest);
