@@ -12,11 +12,16 @@ const CLIENT_ID =
   "302313684265-0knsk18lfbeklpp2sqab95a0ta491qva.apps.googleusercontent.com";
 const CLIENT_SECRET = "iO3dNImWtHXJ1igLisDreu0f";
 const SCOPES = ["https://www.googleapis.com/auth/fitness.activity.read"];
+
 const REDIRECT_URL =
   "https://us-central1-centering-chess-271107.cloudfunctions.net/oauthcallback";
 
+const LOGIN_SUCCESS_URL = "https://centering-chess-271107.web.app";
+
 // const REDIRECT_URL =
-// "http://127.0.0.1:5000/centering-chess-271107/us-central1/oauthcallback";
+//   "http://127.0.0.1:5000/centering-chess-271107/us-central1/oauthcallback";
+
+// const LOGIN_SUCCESS_URL = "http://localhost:5001"
 
 // globals
 const oauth2Client = new google.auth.OAuth2(
@@ -26,6 +31,8 @@ const oauth2Client = new google.auth.OAuth2(
 );
 
 export const authUrl = functions.https.onRequest((request, response) => {
+  response.set("Access-Control-Allow-Origin", "*");
+
   const url = oauth2Client.generateAuthUrl({
     prompt: "consent",
 
@@ -62,6 +69,8 @@ const getUser = async (access_token: string) => {
 
 export const oauthcallback = functions.https.onRequest(
   async (request, response) => {
+    response.set("Access-Control-Allow-Origin", "*");
+
     const code = request.query.code;
 
     const { tokens } = await oauth2Client.getToken(code);
@@ -69,9 +78,8 @@ export const oauthcallback = functions.https.onRequest(
 
     const me = await getUser(tokens.access_token as string);
 
-    response.send({
-      user: me,
-      tokens
-    });
+    response.redirect(
+      `${LOGIN_SUCCESS_URL}?auth_data=${JSON.stringify({ user: me, tokens })}`
+    );
   }
 );
